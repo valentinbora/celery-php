@@ -24,7 +24,7 @@
         }
     ],
     "suggest": {
-        "php-amqplib/php-amqplib": "Adds support for the php-amqplib, AMQP library for PHP, backend",
+        "videlalvaro/php-amqplib": "Adds support for the php-amqplib, AMQP library for PHP, backend",
         "predis/predis": "Adds support for the predis, PHP client library for Redis, backend"
     },
     "autoload": {
