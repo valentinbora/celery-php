@@ -141,14 +141,14 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPMessage object)
 	 * 			or false if result not ready yet
 	 */
-	function GetMessageBody($connection, $task_id,$expire=0, $removeMessageFromQueue = true)
+	function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue = true)
 	{
 		if(!$this->receiving_channel)
 		{
 			$ch = $connection->channel();
 			$expire_args = null;
 			if(!empty($expire)){
-				$expire_args = array("x-expires"=>array("I",$expire));
+				$expire_args = array();
 			}
 
 			$ch->queue_declare(
@@ -161,7 +161,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 				$expire_args
 			);
 
-			$ch->queue_bind($task_id, 'celeryresults');
+			$ch->queue_bind($task_id, 'celery');
 
 			$ch->basic_consume(
 				$task_id, 	/* queue */
