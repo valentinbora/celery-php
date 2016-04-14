@@ -357,7 +357,8 @@ class AsyncResult
 		{
 			$this->complete_result = $message['complete_result'];
 			$this->body = json_decode(
-				$message['body']
+				$message['body'],
+				true
 			);
 		}
 
