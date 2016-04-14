@@ -197,7 +197,7 @@ abstract class CeleryAbstract
 	 * @param array $task_args Additional settings for Celery - normally not needed
 	 * @return AsyncResult
 	 */
-	function PostTask($task, $args, $async_result=true,$routing_key="celery", $task_args=array())
+	function PostTask($task, $args, $async_result=true, $routing_key="celery", $task_args=array())
 	{
 		if(!is_array($args))
 		{
@@ -209,7 +209,7 @@ abstract class CeleryAbstract
 			$this->isConnected = true;
 		}
 
-		$id = uniqid('php_', TRUE);
+		$id = uniqid($task . '.', TRUE);
 
 		/* $args is numeric -> positional args */
 		if(array_keys($args) === range(0, count($args) - 1))
