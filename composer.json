@@ -1,12 +1,11 @@
 {
-    "name": "valentinbora/celery-php",
+    "name": "iappraisal/celery-php",
     "type": "library",
     "description": "PHP client for Celery task queue",
     "keywords": ["celery", "amqp", "task", "cron", "queue", "redis", "python"],
-    "homepage": "https://github.com/valentinbora/celery-php/",
+    "homepage": "https://bitbucket.org/iappraisal/celery-php",
     "support": {
-	"issues": "https://github.com/valentinbora/celery-php/issues",
-	"docs": "https://github.com/valentinbora/celery-php/"
+       "docs": "https://bitbucket.org/iappraisal/celery-php"
     },
     "license": "BSD-2-Clause",
     "authors": [
