@@ -63,7 +63,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPEnvelope object)
 	 * 			or false if result not ready yet
 	 */
-	function GetMessageBody($connection, $task_id, $removeMessageFromQueue = true)
+	function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue = true)
 	{
 		$this->Connect($connection);
 		$ch = $connection->channel;
@@ -71,6 +71,10 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$q->setName($task_id);
 		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
 		$q->declareQueue();
+
+		if(!empty($expire)){
+            $q->setArguments(array("x-expires"=>array("I",$expire)));
+        }
 
 		try
 		{
