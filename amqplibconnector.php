@@ -148,8 +148,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
 			$ch = $connection->channel();
 			$expire_args = null;
 			if(!empty($expire)){
-				$expire_args = array();
-			}
+                $expire_args = array("x-expires"=>array("I",$expire));
+            }
 
 			$ch->queue_declare(
 				$task_id, 				/* queue name */
