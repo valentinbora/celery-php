@@ -48,8 +48,9 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$ch = $connection->channel;
 		$xchg = new AMQPExchange($ch);
 		$xchg->setName($details['exchange']);
+		$xchg->setType('topic');
 
-		$success = $xchg->publish($task, $details['binding'], 0, $params);
+		$success = $xchg->publish($task, $details['routing_key'], 0, $params);
 
 		return $success;
 	}
@@ -70,9 +71,10 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 		$q->setName($task_id);
 		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
 		$q->declareQueue();
+
 		try
 		{
-			$q->bind('celeryresults', $task_id);
+			$q->bind('celery', $task_id);
 		}
 		catch(AMQPQueueException $e)
 		{
