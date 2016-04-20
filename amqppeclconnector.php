@@ -16,6 +16,12 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 */
 	function GetConnectionObject($details)
 	{
+		static $connection;
+
+		if (isset($connection)) {
+			return $connection;
+		}
+
 		$connection = new AMQPConnection();
 		$connection->setHost($details['host']);
 		$connection->setLogin($details['login']);
@@ -32,8 +38,16 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 */
 	function Connect($connection)
 	{
+		static $connected;
+
+		if (isset($connected)) {
+			return;
+		}
+
 		$connection->connect();
 		$connection->channel = new AMQPChannel($connection);
+
+		$connected = true;
 	}
 
 	/**
@@ -65,48 +79,40 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 */
 	function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue = true)
 	{
-		$this->Connect($connection);
-		$ch = $connection->channel;
-		$q = new AMQPQueue($ch);
-		$q->setName($task_id);
-		$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
-		$q->declareQueue();
+		static $q;
 
-		if(!empty($expire)){
-            $q->setArguments(array("x-expires"=>array("I",$expire)));
-        }
+		if (!isset($q) || $q->getName() != $task_id) {
+			$this->Connect($connection);
+			$ch = $connection->channel;
+			$q = new AMQPQueue($ch);
+			$q->setName($task_id);
+			$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
 
-		try
-		{
-			$q->bind('celery', $task_id);
-		}
-		catch(AMQPQueueException $e)
-		{
-			if ($removeMessageFromQueue) {
-				$q->delete();
+			if(!empty($expire)){
+			    $q->setArgument("x-expires", $expire);
 			}
-			$connection->disconnect();
-			return false;
+			
+			$q->declare();
+
+			try
+			{
+				$q->bind('celery', $task_id);
+			}
+			catch(AMQPQueueException $e)
+			{
+				return false;
+			}
 		}
 
 		$message = $q->get(AMQP_AUTOACK);
 
 		if(!$message) 
 		{
-			if ($removeMessageFromQueue) {
-				$q->delete();
-			}
-			$connection->disconnect();
 			return false;
 		}
 
 		if($message->getContentType() != 'application/json')
 		{
-			if ($removeMessageFromQueue) {
-				$q->delete();
-			}
-			$connection->disconnect();
-
 			throw new CeleryException('Response was not encoded using JSON - found ' . 
 				$message->getContentType(). 
 				' - check your CELERY_RESULT_SERIALIZER setting!');
