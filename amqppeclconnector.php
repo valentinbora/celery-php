@@ -89,7 +89,7 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 			$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
 
 			if(!empty($expire)){
-			    $q->setArgument("x-expires", $expire);
+				$q->setArgument("x-expires", $expire);
 			}
 			
 			$q->declare();

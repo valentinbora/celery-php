@@ -71,7 +71,7 @@ require('amqp.php');
 class Celery extends CeleryAbstract 
 {
    /**
-    * @param string host
+	* @param string host
 	* @param string login
 	* @param string password
 	* @param string vhost AMQP vhost, may be left empty or NULL for non-AMQP backends like Redis
@@ -111,7 +111,7 @@ class Celery extends CeleryAbstract
  */
 class CeleryAdvanced extends CeleryAbstract 
 {
-    /**
+	/**
 	 * @param array broker_connection - array for connecting to task queue, see Celery class above for supported keys
 	 * @param array backend_connection - array for connecting to result backend, see Celery class above for supported keys
 	 */
@@ -222,7 +222,7 @@ abstract class CeleryAbstract
 			$kwargs = $args;
 			$args = array();
 		}
-                
+				
 		 /* 
 		 *	$task_args may contain additional arguments such as eta which are useful in task execution 
 		 *	The usecase of this field is as follows:
@@ -249,7 +249,7 @@ abstract class CeleryAbstract
 			$params['delivery_mode'] = 2;
 		}
 
-        $this->broker_connection_details['routing_key'] = $routing_key;
+		$this->broker_connection_details['routing_key'] = $routing_key;
 
 		$success = $this->broker_amqp->PostToExchange(
 			$this->broker_connection,
@@ -263,12 +263,12 @@ abstract class CeleryAbstract
 		   throw new CeleryPublishException();
 		}
 
-        if($async_result) 
-        {
+		if($async_result) 
+		{
 			return new AsyncResult($id, $this->backend_connection_details, $task_array['task'], $args);
-        } 
-        else 
-        {
+		} 
+		else 
+		{
 			return true;
 		}
 	}

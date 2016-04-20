@@ -56,7 +56,7 @@ class AMQPLibConnector extends AbstractAMQPConnector
 	 * How long (in seconds) to wait for a message from queue 
 	 * Sadly, this can't be set to zero to achieve complete asynchronity
 	 */
-    public $wait_timeout = 0.1;
+	public $wait_timeout = 0.1;
 
 	/**
 	 * PhpAmqpLib\Message\AMQPMessage object received from the queue
@@ -148,8 +148,8 @@ class AMQPLibConnector extends AbstractAMQPConnector
 			$ch = $connection->channel();
 			$expire_args = null;
 			if(!empty($expire)){
-                $expire_args = array("x-expires"=>array("I",$expire));
-            }
+				$expire_args = array("x-expires"=>array("I",$expire));
+			}
 
 			$ch->queue_declare(
 				$task_id, 				/* queue name */
