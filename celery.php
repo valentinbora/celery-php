@@ -93,6 +93,7 @@ class Celery extends CeleryAbstract
 			'vhost' => $vhost,
 			'exchange' => $exchange,
 			'binding' => $binding,
+			'persistent_messages' => $persistent_messages,
 			'port' => $port,
 			'connector' => $connector,
 			'result_expire' => $result_expire,
