@@ -77,21 +77,35 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 	 * @return array array('body' => JSON-encoded message body, 'complete_result' => AMQPEnvelope object)
 	 * 			or false if result not ready yet
 	 */
-	function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue = true)
+	function GetMessageBody($connection, $task_id, $expire=0, $removeMessageFromQueue = true, $opts = [])
 	{
 		static $q;
+
+        $flags = 0;
+
+        if (!empty($opts)) {
+            if (isset($opts['AUTODELETE']) && $opts['AUTODELETE']) {
+                $flags |= AMQP_AUTODELETE;
+            }
+
+            if (isset($opts['DURABLE']) && $opts['DURABLE']) {
+                $flags |= AMQP_DURABLE;
+            }
+        } else {
+            $flags = AMQP_AUTODELETE | AMQP_DURABLE;
+        }
 
 		if (!isset($q) || $q->getName() != $task_id) {
 			$this->Connect($connection);
 			$ch = $connection->channel;
 			$q = new AMQPQueue($ch);
 			$q->setName($task_id);
-			$q->setFlags(AMQP_AUTODELETE | AMQP_DURABLE);
+			$q->setFlags($flags);
 
 			if(!empty($expire)){
 				$q->setArgument("x-expires", $expire);
 			}
-			
+
 			$q->declare();
 
 			try
@@ -104,24 +118,33 @@ class PECLAMQPConnector extends AbstractAMQPConnector
 			}
 		}
 
-		$message = $q->get(AMQP_AUTOACK);
+        if (!isset($opts['NO_DISCONNECT'])) {
+            $connection->channel->setPrefetchCount(200);
+        }
 
-		if(!$message) 
+		$message = $q->get();
+
+		if(!$message)
 		{
 			return false;
 		}
 
+        $q->ack($message->getDeliveryTag());
+
 		if($message->getContentType() != 'application/json')
 		{
-			throw new CeleryException('Response was not encoded using JSON - found ' . 
-				$message->getContentType(). 
+			throw new CeleryException('Response was not encoded using JSON - found ' .
+				$message->getContentType().
 				' - check your CELERY_RESULT_SERIALIZER setting!');
 		}
 
 		if ($removeMessageFromQueue) {
 			$q->delete();
 		}
-		$connection->disconnect();
+
+        if (!isset($opts['NO_DISCONNECT'])) {
+		  $connection->disconnect();
+        }
 
 		return array(
 			'complete_result' => $message,
